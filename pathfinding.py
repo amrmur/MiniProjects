@@ -1,30 +1,33 @@
 # i consider all the nodes to have weight of 1
 # the goal of this algorithm is to find the shortest path
 
-print("About the algorithms")
-print("A star is an informed search algorithm so it wont consider irrelevant nodes")
-print("there's a priority queue/open set that keeps track of the nodes we are gonna go to")
-print("it determines what's going next by distance, F(n) = G(n) + H(n)")
-print("H(n) is the manhattan or euclidean distance from that node to destination (guess)")
-print("G(n) is the current shortest distance from start to current node")
-print("also it stores the node it came from\n")
-print("Dijkstra's algorithm is more inefficient but doesn't require any information, the priority queue just stores the distance")
+# About the algorithms 
+# A star is an informed search algorithm so it wont consider irrelevant nodes 
+# there's a priority queue/open set that keeps track of the nodes we are gonna go to 
+# it determines what's going next by distance, F(n) = G(n) + H(n) 
+# H(n) is the manhattan or euclidean distance from that node to destination (guess) 
+# G(n) is the current shortest distance from start to current node 
+# also it stores the node it came from\n 
+# Dijkstra's algorithm is more inefficient but doesn't require any information, the priority queue just stores the distance 
 
-print("\n\nInstructions:")
-print("Right click to place the start, end, and then barriers")
-print("Left click to remove")
-print("Press m when you want to start the A* path finding algorithm w/Manhattan distance")
-print("Press e when you want to start the A* path finding algorithm w/Euclidean distance")
-print("Press d when you want to start the Dijkstra's algorithm")
-print("Press c to clear all and s to soft reset")
+print("Instructions:")
+print("right click: to place start, end, and barriers")
+print("left click: remove")
+print("r: generate a random maze")
+print("m: A* path finding algorithm w/Manhattan distance")
+print("e: A* path finding algorithm w/Euclidean distance")
+print("d: Dijkstra's algorithm/BFS")
+print("c: clear all")
+print("s: soft reset")
 
 import pygame
 import math 
+import random
 from queue import PriorityQueue
 
 WIDTH = 600
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
-pygame.display.set_caption("A* Path Finding Algorithm")
+pygame.display.set_caption("Path Finding Algorithms")
 
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -134,7 +137,6 @@ def astar(draw, grid, start, end):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        
         current = open_set.get()[2]
         open_set_hash.remove(current)
 
@@ -256,6 +258,13 @@ def soft_reset(win, grid, rows, width):
     draw_grid(win, rows, width)
     pygame.display.update()
 
+# made a random maze generator addition #6
+def randMaze(grid):
+    for row in grid:
+        for spot in row:
+            if random.randint(1, 10) < 3:
+                spot.make_barrier()
+
 def main(win, width):
     global euclidean
     euclidean = 0
@@ -316,11 +325,18 @@ def main(win, width):
                     if event.key == pygame.K_d:
                         dijkstra(lambda: draw(win, grid, ROWS, width), grid, start, end)
 
-                if event.key == pygame.K_c:
+                if event.key == pygame.K_c or event.key == pygame.K_r:
                     start = None
                     end = None
                     grid = make_grid(ROWS, width)
                     fill_edges(win, grid)
+                    if event.key == pygame.K_r:
+                        randMaze(grid)
+                        draw(win, grid, ROWS, width)
+                        start = grid[random.randint(1,ROWS-2)][random.randint(1,ROWS-2)]
+                        start.make_start()
+                        end = grid[random.randint(1,ROWS-2)][random.randint(1,ROWS-2)]
+                        end.make_end()
 
                 if event.key == pygame.K_s:
                     soft_reset(win, grid, ROWS, width)
